@@ -1,14 +1,11 @@
 from flask import Flask
 from config import DevelopmentConfig
-from app.controllers import home, all_reviews
-
-API_PREFIX = "/haunted-musings/api"
+from app.controllers import reviews
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(DevelopmentConfig)
     
-    app.register_blueprint(home, url_prefix=f"{API_PREFIX}/home")
-    app.register_blueprint(all_reviews, url_prefix=f"{API_PREFIX}/all-reviews")
+    app.register_blueprint(reviews, url_prefix="/api/reviews")
     
     return app
