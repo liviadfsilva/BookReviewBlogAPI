@@ -14,3 +14,6 @@ class BookReview(Base):
     
     user_id = db.Column(ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="reviews")
+    
+    tag_id = db.Column(ForeignKey("tags.id"), nullable=False)
+    tag = relationship("Tag", back_populates="books")

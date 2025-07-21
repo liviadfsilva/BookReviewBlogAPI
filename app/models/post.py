@@ -1,5 +1,7 @@
 from .db import db
 from .base import Base
+from sqlalchemy.orm import relationship
+from sqlalchemy import ForeignKey
 
 class BlogPost(Base):
     __tablename__ = "posts"
@@ -7,3 +9,6 @@ class BlogPost(Base):
     title = db.Column(db.String(250), nullable=False)
     subtitle = db.Column(db.String(250), nullable=False)
     musing = db.Column(db.Text, nullable=False)
+    
+    user_id = db.Column(ForeignKey("users.id"), nullable=False)
+    user = relationship("User", back_populates="posts")

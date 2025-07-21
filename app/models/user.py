@@ -10,3 +10,4 @@ class User(Base):
     password_hash = db.Column(db.String(250), nullable=False)
     
     reviews = relationship("BookReview", back_populates="user")
+    posts = relationship("BlogPost", back_populates="user")
