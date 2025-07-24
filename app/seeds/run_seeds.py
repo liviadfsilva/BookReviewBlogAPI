@@ -1,5 +1,5 @@
 from app import create_app
-from app.seeds.seed_tags import seed_tags
+from app.seeds.tags import seed_tags
 
 app = create_app()
 
