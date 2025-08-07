@@ -46,10 +46,38 @@ def create_user():
     
     return jsonify({"success": "User created successfully."}), 201
 
-@user.route("/", methods=["PUT", "PATCH"])
-@jwt_required
-def edit_user():
-    pass
+@user.route("/<int:id>", methods=["PUT", "PATCH"])
+@jwt_required()
+def edit_user(id):
+    current_user_id = int(get_jwt_identity())
+    user = User.query.get_or_404(id)
+    
+    if user.id != current_user_id:
+        return jsonify({"error": "You do not have permission to modify this user."}), 403
+    
+    data = request.get_json()
+    
+    email = data.get("email")
+    if email and User.query.filter(User.email == email, User.id != id).first():
+        return jsonify({"error": "This mail is already in use."}), 400
+    
+    password = data.get("password")
+    confirm_password = data.get("confirm_password")
+    
+    if password or confirm_password:
+        if not password or not confirm_password:
+            return jsonify({"error": "Both password and confirm_password are required to change the password."})
+        if password != confirm_password:
+            return jsonify({"error": "Passwords do not match."}), 400
+        user.password = password
+        
+    for key, value in data.items():
+        if key in ['password', 'confirm_password']:
+            continue
+        setattr(user, key, value)
+        
+    db.session.commit()
+    return jsonify({'success': 'User updated successfully'}), 200
 
 @user.route("/<int:id>", methods=["DELETE"])
 @jwt_required()
