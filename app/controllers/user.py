@@ -7,8 +7,18 @@ from app.controllers.auth import add_token_to_revoked_list
 user = Blueprint("user", __name__)
 
 @user.route("/", methods=["GET"])
+@jwt_required()
 def get_users():
-    pass
+    users = User.query.filter_by(is_active=True).all()
+    users_list = [
+        {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email
+        }
+        for user in users
+    ]
+    return jsonify(users_list)
 
 @user.route("/", methods=["POST"])
 @jwt_required()
@@ -37,6 +47,7 @@ def create_user():
     return jsonify({"success": "User created successfully."}), 201
 
 @user.route("/", methods=["PUT", "PATCH"])
+@jwt_required
 def edit_user():
     pass
 
