@@ -2,6 +2,7 @@ from .db import db
 from .base import Base
 from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey
+from .review_tags import book_review_tags
 
 class BookReview(Base):
     __tablename__ = "book_reviews"
@@ -16,5 +17,4 @@ class BookReview(Base):
     user_id = db.Column(ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="reviews")
     
-    tag_id = db.Column(ForeignKey("tags.id"), nullable=False)
-    tag = relationship("Tag", back_populates="books")
+    tags = relationship("Tag", secondary=book_review_tags, back_populates="book_reviews")
