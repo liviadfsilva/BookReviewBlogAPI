@@ -19,7 +19,6 @@ def get_reviews():
 @jwt_required()
 def create_review():
     data = request.get_json()
-    
     current_user_id = int(get_jwt_identity())
     
     title = data.get("title")
