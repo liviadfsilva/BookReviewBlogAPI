@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.review import BookReview
 from app.models.db import db
+from app.models.tag import Tag
 
 reviews = Blueprint("reviews", __name__)
 
@@ -27,13 +28,20 @@ def create_review():
     review = data.get("review")
     rating = data.get("rating")
     spice_rating = data.get("spice_rating")
-    tag_id = data.get("tag_id")
+    tag_ids = data.get("tag_ids")
     
-    if not title or not author or not cover_url or not review or not rating:
-        return jsonify({"error": "Title, Author, Cover_URL, Reviews, Rating and Tag_ID are required."}), 400
+    if not title or not author or not cover_url or not review or not rating or not tag_ids:
+        return jsonify({"error": "Title, Author, Cover_URL, Reviews, Rating and Tag_IDs are required."}), 400
     
     if BookReview.query.filter_by(title=title).first():
         return jsonify({"error": "There's already a review with this title."}), 400
+    
+    tags = []
+    for tag_id in tag_ids:
+        tag = db.session.get(Tag, tag_id)
+        if not tag:
+            return jsonify({"error": f"Tag with id {tag_id} not found."}), 404
+        tags.append(tag)
     
     new_review = BookReview(
         title=title,
@@ -42,7 +50,7 @@ def create_review():
         review=review,
         rating=rating,
         spice_rating=spice_rating,
-        tag_id=tag_id,
+        tags=tags,
         user_id=current_user_id
     )
     
@@ -69,7 +77,7 @@ def update_review(review_id):
         book_review.title = data["title"]
         
     if request.method == "PUT":
-        required_fields = ["title", "author", "cover_url", "review", "rating", "tag_id"]
+        required_fields = ["title", "author", "cover_url", "review", "rating", "tag_ids"]
         missing = [field for field in required_fields if field not in data or data[field] is None]
         
         if missing:
@@ -81,7 +89,18 @@ def update_review(review_id):
         book_review.review = data["review"]
         book_review.rating = data["rating"]
         book_review.spice_rating = data.get("spice_rating")
-        book_review.tag_id = data["tag_id"]
+        
+        tag_ids = data["tag_ids"]
+        if not isinstance(tag_ids, list) or len(tag_ids) == 0:
+            return jsonify({"error": "tag_ids must be a non-empty list."}), 400
+        
+        tags = []
+        for tag_id in tag_ids:
+            tag = db.session.get(Tag, tag_id)
+            if not tag:
+                return jsonify({"error": f"Tag with id {tag_id} not found."}), 404
+            tags.append(tag)
+        book_review.tags = tags
     
     else:
         if "author" in data:
@@ -94,8 +113,19 @@ def update_review(review_id):
             book_review.rating = data["rating"]
         if "spice_rating" in data:
             book_review.spice_rating = data["spice_rating"]
-        if "tag_id" in data:
-            book_review.tag_id = data["tag_id"]
+            
+        if "tag_ids" in data:
+            tag_ids = data["tag_ids"]
+            if not isinstance(tag_ids, list) or len(tag_ids) == 0:
+                return jsonify({"error": "tag_ids must be a non-empty list."}), 400
+            
+            tags = []
+            for tag_id in tag_ids:
+                tag = db.session.get(Tag, tag_id)
+                if not tag:
+                    return jsonify({"error": f"Tag with id {tag_id} not found."}), 404
+                tags.append(tag)
+            book_review.tags = tags
         
     db.session.commit()
     
