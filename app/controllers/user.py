@@ -59,7 +59,7 @@ def edit_user(id):
     
     email = data.get("email")
     if email and User.query.filter(User.email == email, User.id != id).first():
-        return jsonify({"error": "This mail is already in use."}), 400
+        return jsonify({"error": "This email is already in use."}), 400
     
     password = data.get("password")
     confirm_password = data.get("confirm_password")

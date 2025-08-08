@@ -7,10 +7,11 @@ class BookReview(Base):
     __tablename__ = "book_reviews"
     
     title = db.Column(db.String(250), nullable=False, unique=True)
+    author = db.Column(db.String(250), nullable=False)
     cover_url = db.Column(db.String(2083), nullable=False)
     review = db.Column(db.Text, nullable=False)
     rating = db.Column(db.Integer, nullable=False)
-    spice_rating = db.Column(db.Integer, nullable=False)
+    spice_rating = db.Column(db.Integer)
     
     user_id = db.Column(ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="reviews")

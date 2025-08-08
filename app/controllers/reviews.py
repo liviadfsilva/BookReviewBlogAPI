@@ -1,9 +1,12 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.review import BookReview
+from app.models.db import db
 
 reviews = Blueprint("reviews", __name__)
 
 @reviews.route("/", methods=["GET"])
+@jwt_required()
 def get_reviews():
     reviews = BookReview.query.all()
     
@@ -11,3 +14,94 @@ def get_reviews():
         return jsonify({"error": "No reviews found."}), 404
     
     return jsonify(response={"success": "Successfully accessed reviews."}), 200
+
+@reviews.route("/", methods=["POST"])
+@jwt_required()
+def create_review():
+    data = request.get_json()
+    
+    current_user_id = int(get_jwt_identity())
+    
+    title = data.get("title")
+    author = data.get("author")
+    cover_url = data.get("cover_url")
+    review = data.get("review")
+    rating = data.get("rating")
+    spice_rating = data.get("spice_rating")
+    tag_id = data.get("tag_id")
+    
+    if not title or not author or not cover_url or not review or not rating:
+        return jsonify({"error": "Title, Author, Cover_URL, Reviews, Rating and Tag_ID are required."}), 400
+    
+    if BookReview.query.filter_by(title=title).first():
+        return jsonify({"error": "There's already a review with this title."}), 400
+    
+    new_review = BookReview(
+        title=title,
+        author=author,
+        cover_url=cover_url,
+        review=review,
+        rating=rating,
+        spice_rating=spice_rating,
+        tag_id=tag_id,
+        user_id=current_user_id
+    )
+    
+    db.session.add(new_review)
+    db.session.commit()
+    
+    return jsonify({"success": "Review created successfully."}), 201
+
+@reviews.route("/<int:review_id>", methods=["PUT", "PATCH"])
+@jwt_required()
+def update_review(review_id):
+    current_user_id = int(get_jwt_identity())
+    book_review = BookReview.query.get_or_404(review_id)
+    
+    if book_review.user_id != current_user_id:
+        return jsonify({"error": "You do not have permission to modify this review."}), 403
+    
+    data = request.get_json()
+    
+    if "title" in data:
+        existing = BookReview.query.filter_by(title=data["title"]).first()
+        if existing and existing.id != book_review.id:
+            return jsonify({"error": "There's already a review with this title."}), 400
+        book_review.title = data["title"]
+        
+    if request.method == "PUT":
+        required_fields = ["title", "author", "cover_url", "review", "rating", "tag_id"]
+        missing = [field for field in required_fields if field not in data or data[field] is None]
+        
+        if missing:
+            return jsonify({"error": f"Missing required fields for full update: {', '.join(missing)}"}), 400
+        
+        book_review.title = data["title"]
+        book_review.author = data["author"]
+        book_review.cover_url = data["cover_url"]
+        book_review.review = data["review"]
+        book_review.rating = data["rating"]
+        book_review.spice_rating = data.get("spice_rating")
+        book_review.tag_id = data["tag_id"]
+    
+    else:
+        if "author" in data:
+            book_review.author = data["author"]
+        if "cover_url" in data:
+            book_review.cover_url = data["cover_url"]
+        if "review" in data:
+            book_review.review = data["review"]
+        if "rating" in data:
+            book_review.rating = data["rating"]
+        if "spice_rating" in data:
+            book_review.spice_rating = data["spice_rating"]
+        if "tag_id" in data:
+            book_review.tag_id = data["tag_id"]
+        
+    db.session.commit()
+    
+    return jsonify({"success": "Review updated successfully."}), 200
+
+@reviews.route("/", methods=["DELETE"])
+def delete_review():
+    pass
