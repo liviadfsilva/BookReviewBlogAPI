@@ -102,6 +102,19 @@ def update_review(review_id):
     
     return jsonify({"success": "Review updated successfully."}), 200
 
-@reviews.route("/", methods=["DELETE"])
-def delete_review():
-    pass
+@reviews.route("/<int:review_id>", methods=["DELETE"])
+@jwt_required()
+def delete_review(review_id):
+    current_user_id = int(get_jwt_identity())
+    book_review = BookReview.query.get_or_404(review_id)
+    
+    if book_review.user_id != current_user_id:
+        return jsonify({"error": "You do not have permission to delete this review."}), 403
+    
+    db.session.delete(book_review)
+    db.session.commit()
+    
+    return jsonify({"success": "Review deleted successfully."})
+        
+    
+    
