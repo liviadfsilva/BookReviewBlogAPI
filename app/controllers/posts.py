@@ -18,8 +18,8 @@ def get_posts():
 @posts.route("/", methods=["POST"])
 @jwt_required()
 def create_post():
-    data = request.json()
-    current_user_id = int(get_jwt_identity)
+    data = request.get_json()
+    current_user_id = int(get_jwt_identity())
     
     title = data.get("title")
     subtitle = data.get("subtitle")
@@ -46,7 +46,40 @@ def create_post():
 @posts.route("/<int:post_id>", methods=["PUT", "PATCH"])
 @jwt_required()
 def update_post(post_id):
-    pass
+    current_user_id = int(get_jwt_identity())
+    blog_post = BlogPost.query.get_or_404(post_id)
+    
+    if blog_post.user_id != current_user_id:
+        return jsonify({"error": "You do not have permission to modify this post."}), 400
+    
+    data = request.get_json()
+    
+    if "title" in data:
+        existing = BlogPost.query.filter_by(title=data["title"]).first()
+        if existing and existing.id != blog_post.id:
+            return jsonify({"error": "There's already a review with this title."}), 400
+        blog_post.title = data["title"]
+        
+    if request.method == "PUT":
+        required_fields = ["title", "subtitle", "musing"]
+        missing = [field for field in required_fields if field not in data or data[field] is None]
+        
+        if missing:
+            return jsonify({"error": f"Missing required fields for full update: {', '.join(missing)}"}), 400
+    
+        blog_post.title = data["title"]
+        blog_post.subtitle = data["subtitle"]
+        blog_post.musing = data["musing"]
+        
+    else:
+        if "subtitle" in data:
+            blog_post.subtitle = data["subtitle"]
+        if "musing" in data:
+            blog_post.musing = data["musing"]
+            
+    db.session.commit()
+    
+    return jsonify({"success": "Blog post updated successfully."}), 200
 
 @posts.route("/<int:post_id>", methods=["DELETE"])
 @jwt_required()
