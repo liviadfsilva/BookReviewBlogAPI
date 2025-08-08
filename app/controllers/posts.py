@@ -43,12 +43,21 @@ def create_post():
     
     return jsonify({"success": "Blog post created successfully."}), 201
     
-@posts.route("/", methods=["PUT", "PATCH"])
+@posts.route("/<int:post_id>", methods=["PUT", "PATCH"])
 @jwt_required()
-def update_post():
+def update_post(post_id):
     pass
 
-@posts.route("/", methods=["DELETE"])
+@posts.route("/<int:post_id>", methods=["DELETE"])
 @jwt_required()
-def delete_post():
-    pass
+def delete_post(post_id):
+    current_user_id = int(get_jwt_identity())
+    blog_post = BlogPost.query.get_or_404(post_id)
+    
+    if blog_post.user_id != current_user_id:
+        return jsonify({"error": "You do not have permission to delete this post."}), 400
+    
+    db.session.delete(blog_post)
+    db.session.commit()
+    
+    return jsonify({"success": "Blog post successfully deleted."})
