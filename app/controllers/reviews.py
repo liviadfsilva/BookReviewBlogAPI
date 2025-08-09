@@ -7,7 +7,6 @@ from app.models.tag import Tag
 reviews = Blueprint("reviews", __name__)
 
 @reviews.route("/", methods=["GET"])
-@jwt_required()
 def get_reviews():
     reviews = BookReview.query.all()
     
@@ -15,6 +14,10 @@ def get_reviews():
         return jsonify({"error": "No reviews found."}), 404
     
     return jsonify(response={"success": "Successfully accessed reviews."}), 200
+
+@reviews.route("/<int:id>", methods=["GET"])
+def get_review(id):
+    pass
 
 @reviews.route("/", methods=["POST"])
 @jwt_required()

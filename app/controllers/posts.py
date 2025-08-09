@@ -6,7 +6,6 @@ from app.models.db import db
 posts = Blueprint("posts", __name__)
 
 @posts.route("/", methods=["GET"])
-@jwt_required()
 def get_posts():
     blog_posts = BlogPost.query.all()
     

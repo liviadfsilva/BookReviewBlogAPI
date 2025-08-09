@@ -1,0 +1,36 @@
+services:
+  app:
+    build: ./
+    image: local/book-review-blog-api:dev
+    pull_policy: never
+    volumes:
+      - .:/book-review-blog-api
+    environment:
+      FLASK_APP: main.py
+      FLASK_ENV: development
+      FLASK_RUN_HOST: 0.0.0.0
+      FLASK_RUN_PORT: 5000
+      # secrets are encouraged to be stored in the git-ignored .env file which is autoloaded by the python-dotenv module
+    ports:
+      - "5001:5000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # for linux, doesn't hurt other OS
+    command: sh -c "
+      pip install -r requirements.txt
+      && flask db migrate && flask db upgrade
+      && flask run --debug
+      "
+    stop_signal: SIGINT
+    tty: true
+    stdin_open: true
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: book-review-blog
+    ports:
+      - "5432:5432"

@@ -11,6 +11,9 @@ class User(Base):
     password_hash = db.Column(db.String(250), nullable=False)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
     
+    reviews = relationship("BookReview", back_populates="user")
+    posts = relationship("BlogPost", back_populates="user")
+    
     @property
     def password(self):
         raise AttributeError("password is not a readable attribute")
@@ -21,6 +24,3 @@ class User(Base):
         
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
-                    
-    reviews = relationship("BookReview", back_populates="user")
-    posts = relationship("BlogPost", back_populates="user")
