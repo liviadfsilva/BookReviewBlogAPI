@@ -54,7 +54,9 @@ def create_post():
     db.session.add(new_blog_post)
     db.session.commit()
     
-    return jsonify({"success": "Blog post created successfully."}), 201
+    new_post_result = PostSchema().dump(new_blog_post)
+    
+    return jsonify({"new_blog_post": new_post_result}), 201
     
 @posts.route("/<int:post_id>", methods=["PUT", "PATCH"])
 @jwt_required()
@@ -91,8 +93,10 @@ def update_post(post_id):
             blog_post.musing = data["musing"]
             
     db.session.commit()
+    updated_blog_post = PostSchema().dump(blog_post)
+
     
-    return jsonify({"success": "Blog post updated successfully."}), 200
+    return jsonify({"updated_post": updated_blog_post}), 200
 
 @posts.route("/<int:post_id>", methods=["DELETE"])
 @jwt_required()
