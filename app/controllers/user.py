@@ -3,22 +3,18 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from app.models.user import User
 from app.models.db import db
 from app.controllers.auth import add_token_to_revoked_list
+from app.schemas import UserSchema
 
 user = Blueprint("user", __name__)
+user_schema = UserSchema()
 
 @user.route("/", methods=["GET"])
 @jwt_required()
 def get_users():
     users = User.query.filter_by(is_active=True).all()
-    users_list = [
-        {
-            "id": user.id,
-            "name": user.name,
-            "email": user.email,
-        }
-        for user in users
-    ]
-    return jsonify(users_list), 200
+    users_data = UserSchema(many=True).dump(users)
+    
+    return jsonify(users_data), 200
 
 @user.route("/me", methods=["GET"])
 @jwt_required()
