@@ -19,13 +19,12 @@ def get_users():
 @user.route("/me", methods=["GET"])
 @jwt_required()
 def get_user_info():
-    # current_user_id = int(get_jwt_identity())
+    current_user_id = int(get_jwt_identity())
     
-    # user = User.query.get_or_404(current_user_id)
+    user = User.query.get_or_404(current_user_id)
+    user_data = UserSchema().dump(user)
     
-    # return jsonify(user), 200
-    #TODO: schemas.
-    pass
+    return jsonify(user_data), 200
 
 @user.route("/", methods=["POST"])
 def create_user():
