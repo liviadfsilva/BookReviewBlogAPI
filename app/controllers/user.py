@@ -83,7 +83,9 @@ def edit_user(id):
         setattr(user, key, value)
         
     db.session.commit()
-    return jsonify({'success': 'User updated successfully'}), 200
+    updated_user = UserSchema().dump(user)
+    
+    return jsonify({"success": "User updated successfully", "user": updated_user}), 200
 
 @user.route("/soft-delete/<int:id>", methods=["DELETE"])
 @jwt_required()
@@ -105,16 +107,9 @@ def soft_delete_user(id):
 @user.route("/hard-delete/<int:id>", methods=["DELETE"])
 @jwt_required()
 def hard_delete_user(id):
-    current_user_id = int(get_jwt_identity())
     user = User.query.get_or_404(id)
-    
-    if user.id != current_user_id:
-        return jsonify({"error": "You do not have permission to delete this user"}), 403
 
     db.session.delete(user)
     db.session.commit()
     
-    jti = get_jwt()['jti']
-    add_token_to_revoked_list(jti)
-    
-    return jsonify({'msg': 'User successfully deleted'}), 200
+    return jsonify({'msg': 'User successfully hard-deleted'}), 200
