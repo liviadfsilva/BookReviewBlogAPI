@@ -67,7 +67,7 @@ def create_review():
     
     new_review_result = ReviewSchema().dump(new_review)
     
-    return jsonify({"success": "Review created successfully.", "new_review": new_review_result}), 201
+    return jsonify({"new_review": new_review_result}), 201
 
 @reviews.route("/<int:review_id>", methods=["PUT", "PATCH"])
 @jwt_required()
@@ -140,7 +140,7 @@ def update_review(review_id):
     db.session.commit()
     updated_review = ReviewSchema().dump(book_review)
     
-    return jsonify({"success": "Review updated successfully.", "updated_review": updated_review}), 200
+    return jsonify({"updated_review": updated_review}), 200
 
 @reviews.route("/<int:review_id>", methods=["DELETE"])
 @jwt_required()
@@ -154,7 +154,7 @@ def delete_review(review_id):
     db.session.delete(book_review)
     db.session.commit()
     
-    return jsonify({"success": "Review deleted successfully."})
+    return jsonify({"msg": "Review deleted successfully."})
         
     
     

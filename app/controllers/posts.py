@@ -110,4 +110,4 @@ def delete_post(post_id):
     db.session.delete(blog_post)
     db.session.commit()
     
-    return jsonify({"success": "Blog post successfully deleted."})
+    return jsonify({"msg": "Blog post successfully deleted."})

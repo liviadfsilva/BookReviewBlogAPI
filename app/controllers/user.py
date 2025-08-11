@@ -50,7 +50,7 @@ def create_user():
     
     new_user = UserSchema().dump(user)
     
-    return jsonify({"success": "User created successfully.", "user": new_user}), 201
+    return jsonify({"new_user": new_user}), 201
 
 @user.route("/<int:id>", methods=["PUT", "PATCH"])
 @jwt_required()
@@ -85,7 +85,7 @@ def edit_user(id):
     db.session.commit()
     updated_user = UserSchema().dump(user)
     
-    return jsonify({"success": "User updated successfully", "user": updated_user}), 200
+    return jsonify({"updated_user": updated_user}), 200
 
 @user.route("/soft-delete/<int:id>", methods=["DELETE"])
 @jwt_required()
