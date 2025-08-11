@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.post import BlogPost
 from app.models.db import db
+from app.schemas import PostSchema
 
 posts = Blueprint("posts", __name__)
 
@@ -12,7 +13,20 @@ def get_posts():
     if not blog_posts:
         return jsonify({"error": "No blog posts found."}), 404
     
-    return jsonify({"success": "Sucessfully retrieved all posts."}), 200
+    posts_data = PostSchema(many=True).dump(blog_posts)
+        
+    return jsonify(posts_data), 200
+
+@posts.route("/<int:post_id>", methods=["GET"])
+def get_post(post_id):
+    blog_post = BlogPost.query.get_or_404(post_id)
+    
+    if not blog_post:
+        return jsonify({"error": "No blog posts found."}), 404
+    
+    post_data = PostSchema().dump(blog_post)
+        
+    return jsonify(post_data), 200
 
 @posts.route("/", methods=["POST"])
 @jwt_required()
