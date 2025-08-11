@@ -3,23 +3,27 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.review import BookReview
 from app.models.db import db
 from app.models.tag import Tag
+from app.schemas import ReviewSchema
 
 reviews = Blueprint("reviews", __name__)
+review_schema = ReviewSchema()
 
 @reviews.route("/", methods=["GET"])
 def get_reviews():
     reviews = BookReview.query.all()
+    reviews_data = ReviewSchema(many=True).dump(reviews)
     
     if not reviews:
         return jsonify({"error": "No reviews found."}), 404
     
-    return jsonify(response={"success": "Successfully accessed reviews."}), 200
+    return jsonify(reviews_data), 200
 
 @reviews.route("/<int:review_id>", methods=["GET"])
 def get_review(review_id):
     review = BookReview.query.get_or_404(review_id)
+    review_data = ReviewSchema().dump(review)
     
-    return jsonify(review)
+    return jsonify(review_data)
 
 @reviews.route("/", methods=["POST"])
 @jwt_required()
