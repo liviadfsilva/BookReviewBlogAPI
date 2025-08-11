@@ -6,7 +6,6 @@ from app.controllers.auth import add_token_to_revoked_list
 from app.schemas import UserSchema
 
 user = Blueprint("user", __name__)
-user_schema = UserSchema()
 
 @user.route("/", methods=["GET"])
 @jwt_required()

@@ -6,7 +6,6 @@ from app.models.tag import Tag
 from app.schemas import ReviewSchema
 
 reviews = Blueprint("reviews", __name__)
-review_schema = ReviewSchema()
 
 @reviews.route("/", methods=["GET"])
 def get_reviews():
