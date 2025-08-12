@@ -10,7 +10,12 @@ reviews = Blueprint("reviews", __name__)
 @reviews.route("/", methods=["GET"])
 def get_reviews():
     reviews = BookReview.query.all()
-    reviews_data = ReviewSchema(many=True).dump(reviews)
+    
+    reviews_data = []
+    for review in reviews:
+        review_dict = ReviewSchema().dump(review)
+        review_dict["tag_names"] = [tag.name for tag in review.tags]
+        reviews_data.append(review_dict)
     
     if not reviews:
         return jsonify({"error": "No reviews found."}), 404
@@ -22,6 +27,8 @@ def get_review(review_id):
     review = BookReview.query.get_or_404(review_id)
     review_data = ReviewSchema().dump(review)
     
+    review_data["tag_names"] = [tag.name for tag in review.tags]
+
     return jsonify(review_data)
 
 @reviews.route("/", methods=["POST"])

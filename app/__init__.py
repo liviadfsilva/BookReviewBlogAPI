@@ -5,6 +5,7 @@ from app.controllers import auth
 from app.controllers import user
 from app.controllers import posts
 from flask_migrate import Migrate
+from flask_cors import CORS
 from app.models.db import db
 from app.initializer import jwt
 
@@ -13,6 +14,8 @@ migrate = Migrate()
 def create_app():
     app = Flask(__name__)
     app.config.from_object(DevelopmentConfig)
+    
+    CORS(app)
     
     db.init_app(app)
     migrate.init_app(app, db)
