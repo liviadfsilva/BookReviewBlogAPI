@@ -28,6 +28,11 @@ def get_post(post_id):
         
     return jsonify(post_data), 200
 
+@posts.route("/latest", methods=["GET"])
+def get_latest_posts():
+    reviews = BlogPost.query.order_by(BlogPost.id.desc()).limit(3).all()
+    return jsonify(PostSchema(many=True).dump(reviews))
+
 @posts.route("/", methods=["POST"])
 @jwt_required()
 def create_post():
@@ -37,6 +42,7 @@ def create_post():
     title = data.get("title")
     subtitle = data.get("subtitle")
     musing = data.get("musing")
+    post_img = data.get("post_img")
     
     if not title or not subtitle or not musing:
         return jsonify({"error": "Title, subtitle and musing are required."}), 400
@@ -48,6 +54,7 @@ def create_post():
         title=title,
         subtitle=subtitle,
         musing=musing,
+        post_img=post_img,
         user_id=current_user_id
     )
     
@@ -76,7 +83,7 @@ def update_post(post_id):
         blog_post.title = data["title"]
         
     if request.method == "PUT":
-        required_fields = ["title", "subtitle", "musing"]
+        required_fields = ["title", "subtitle", "musing", "post_img"]
         missing = [field for field in required_fields if field not in data or data[field] is None]
         
         if missing:
@@ -85,12 +92,15 @@ def update_post(post_id):
         blog_post.title = data["title"]
         blog_post.subtitle = data["subtitle"]
         blog_post.musing = data["musing"]
+        blog_post.musing = data["post_img"]
         
     else:
         if "subtitle" in data:
             blog_post.subtitle = data["subtitle"]
         if "musing" in data:
             blog_post.musing = data["musing"]
+        if "post_img" in data:
+            blog_post.post_img = data["post_img"]
             
     db.session.commit()
     updated_blog_post = PostSchema().dump(blog_post)
