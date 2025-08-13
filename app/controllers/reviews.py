@@ -31,6 +31,11 @@ def get_review(review_id):
 
     return jsonify(review_data)
 
+@reviews.route("/latest", methods=["GET"])
+def get_latest_reviews():
+    reviews = BookReview.query.order_by(BookReview.id.desc()).limit(3).all()
+    return jsonify(ReviewSchema(many=True).dump(reviews))
+
 @reviews.route("/", methods=["POST"])
 @jwt_required()
 def create_review():
