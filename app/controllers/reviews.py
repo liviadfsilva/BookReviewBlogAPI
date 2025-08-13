@@ -73,6 +73,7 @@ def create_review():
     db.session.commit()
     
     new_review_result = ReviewSchema().dump(new_review)
+    new_review_result["tag_names"] = [tag.name for tag in new_review.tags]
     
     return jsonify({"new_review": new_review_result}), 201
 
@@ -146,6 +147,7 @@ def update_review(review_id):
         
     db.session.commit()
     updated_review = ReviewSchema().dump(book_review)
+    updated_review["tag_names"] = [tag.name for tag in book_review.tags]
     
     return jsonify({"updated_review": updated_review}), 200
 
