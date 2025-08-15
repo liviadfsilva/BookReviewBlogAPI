@@ -38,6 +38,7 @@ def get_latest_reviews():
 
 @reviews.route("/category/<string:category_name>")
 def get_reviews_by_category(category_name):
+    category_name = category_name.replace("-", " ")
     reviews = BookReview.query.join(BookReview.tags).filter(Tag.name.ilike(category_name)).all()
     
     reviews_data = []
