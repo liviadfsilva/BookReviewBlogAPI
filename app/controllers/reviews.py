@@ -36,7 +36,7 @@ def get_latest_reviews():
     reviews = BookReview.query.order_by(BookReview.id.desc()).limit(3).all()
     return jsonify(ReviewSchema(many=True).dump(reviews))
 
-@reviews.route("/category/<string:category_name>")
+@reviews.route("/category/<string:category_name>", methods=["GET"])
 def get_reviews_by_category(category_name):
     category_name = category_name.replace("-", " ")
     reviews = BookReview.query.join(BookReview.tags).filter(Tag.name.ilike(category_name)).all()
@@ -49,6 +49,21 @@ def get_reviews_by_category(category_name):
 
     if not reviews:
         return jsonify({"error": f"No reviews found for category '{category_name}'"}), 404
+
+    return jsonify(reviews_data), 200
+
+@reviews.route("/five-star-reviews", methods=["GET"])
+def get_five_star_reviews():
+    reviews = BookReview.query.filter_by(rating=5).all()
+
+    reviews_data = []
+    for review in reviews:
+        review_dict = ReviewSchema().dump(review)
+        review_dict["tag_names"] = [tag.name for tag in review.tags]
+        reviews_data.append(review_dict)
+
+    if not reviews:
+        return jsonify({"error": "No five-star reviews found"}), 404
 
     return jsonify(reviews_data), 200
 
