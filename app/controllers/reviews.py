@@ -81,8 +81,8 @@ def create_review():
     spice_rating = data.get("spice_rating")
     tag_ids = data.get("tag_ids")
     
-    if not title or not author or not cover_url or not review or not rating or not tag_ids:
-        return jsonify({"error": "Title, Author, Cover_URL, Reviews, Rating and Tag_IDs are required."}), 400
+    if title is None or author is None or cover_url is None or review is None or rating is None or tag_ids is None:
+        return jsonify({"error": "Title, Author, Cover_URL, Review, Rating and Tag_IDs are required."}), 400
     
     if BookReview.query.filter_by(title=title).first():
         return jsonify({"error": "There's already a review with this title."}), 400

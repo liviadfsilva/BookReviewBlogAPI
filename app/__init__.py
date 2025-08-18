@@ -4,6 +4,7 @@ from app.controllers import reviews
 from app.controllers import auth
 from app.controllers import user
 from app.controllers import posts
+from app.controllers import tags
 from flask_migrate import Migrate
 from flask_cors import CORS
 from app.models.db import db
@@ -25,5 +26,6 @@ def create_app():
     app.register_blueprint(auth, url_prefix="/api")
     app.register_blueprint(user, url_prefix="/api/users")
     app.register_blueprint(posts, url_prefix="/api/blog-posts")
+    app.register_blueprint(tags, url_prefix="/api/tags")
     
     return app
