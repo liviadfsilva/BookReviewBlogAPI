@@ -91,8 +91,8 @@ def update_post(post_id):
     
         blog_post.title = data["title"]
         blog_post.subtitle = data["subtitle"]
+        blog_post.post_img = data["post_img"]
         blog_post.musing = data["musing"]
-        blog_post.musing = data["post_img"]
         
     else:
         if "subtitle" in data:
