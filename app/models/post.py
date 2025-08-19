@@ -10,5 +10,6 @@ class BlogPost(Base):
     subtitle = db.Column(db.String(250), nullable=False)
     post_img = db.Column(db.String(2083), nullable=True)
     musing = db.Column(db.Text, nullable=False)
+    slug = db.Column(db.String, nullable=False, unique=True)
     user_id = db.Column(ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="posts")

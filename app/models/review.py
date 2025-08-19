@@ -13,6 +13,7 @@ class BookReview(Base):
     review = db.Column(db.Text, nullable=False)
     rating = db.Column(db.Integer, nullable=False)
     spice_rating = db.Column(db.Integer)
+    slug = db.Column(db.String, nullable=False, unique=True)
     
     user_id = db.Column(ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="reviews")

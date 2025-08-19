@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.post import BlogPost
 from app.models.db import db
 from app.schemas import PostSchema
+from slugify import slugify
 
 posts = Blueprint("posts", __name__)
 
@@ -17,9 +18,9 @@ def get_posts():
         
     return jsonify(posts_data), 200
 
-@posts.route("/<int:post_id>", methods=["GET"])
-def get_post(post_id):
-    blog_post = BlogPost.query.get_or_404(post_id)
+@posts.route("/<slug>", methods=["GET"])
+def get_post(slug):
+    blog_post = BlogPost.query.filter_by(slug=slug).first_or_404()
     
     if not blog_post:
         return jsonify({"error": "No blog posts found."}), 404
@@ -44,6 +45,7 @@ def create_post():
     musing = data.get("musing")
     post_img = data.get("post_img")
     
+    
     if not title or not subtitle or not musing:
         return jsonify({"error": "Title, subtitle and musing are required."}), 400
     
@@ -55,7 +57,8 @@ def create_post():
         subtitle=subtitle,
         musing=musing,
         post_img=post_img,
-        user_id=current_user_id
+        user_id=current_user_id,
+        slug=slugify(data["title"])
     )
     
     db.session.add(new_blog_post)
@@ -65,11 +68,11 @@ def create_post():
     
     return jsonify({"new_blog_post": new_post_result}), 201
     
-@posts.route("/<int:post_id>", methods=["PUT", "PATCH"])
+@posts.route("/<slug>", methods=["PUT", "PATCH"])
 @jwt_required()
-def update_post(post_id):
+def update_post(slug):
     current_user_id = int(get_jwt_identity())
-    blog_post = BlogPost.query.get_or_404(post_id)
+    blog_post = BlogPost.query.filter_by(slug=slug).first_or_404()
     
     if blog_post.user_id != current_user_id:
         return jsonify({"error": "You do not have permission to modify this post."}), 400
@@ -81,6 +84,7 @@ def update_post(post_id):
         if existing and existing.id != blog_post.id:
             return jsonify({"error": "There's already a review with this title."}), 400
         blog_post.title = data["title"]
+        blog_post.slug = slugify(data["title"])
         
     if request.method == "PUT":
         required_fields = ["title", "subtitle", "musing", "post_img"]
@@ -108,11 +112,11 @@ def update_post(post_id):
     
     return jsonify({"updated_post": updated_blog_post}), 200
 
-@posts.route("/<int:post_id>", methods=["DELETE"])
+@posts.route("/<slug>", methods=["DELETE"])
 @jwt_required()
-def delete_post(post_id):
+def delete_post(slug):
     current_user_id = int(get_jwt_identity())
-    blog_post = BlogPost.query.get_or_404(post_id)
+    blog_post = BlogPost.query.filter_by(slug=slug).first_or_404()
     
     if blog_post.user_id != current_user_id:
         return jsonify({"error": "You do not have permission to delete this post."}), 400

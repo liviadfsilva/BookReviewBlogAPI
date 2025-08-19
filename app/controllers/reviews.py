@@ -4,6 +4,7 @@ from app.models.review import BookReview
 from app.models.db import db
 from app.models.tag import Tag
 from app.schemas import ReviewSchema
+from slugify import slugify
 
 reviews = Blueprint("reviews", __name__)
 
@@ -22,9 +23,9 @@ def get_reviews():
     
     return jsonify(reviews_data), 200
 
-@reviews.route("/<int:review_id>", methods=["GET"])
-def get_review(review_id):
-    review = BookReview.query.get_or_404(review_id)
+@reviews.route("/<slug>", methods=["GET"])
+def get_review(slug):
+    review = BookReview.query.filter_by(slug=slug).first_or_404()
     review_data = ReviewSchema().dump(review)
     
     review_data["tag_names"] = [tag.name for tag in review.tags]
@@ -102,7 +103,8 @@ def create_review():
         rating=rating,
         spice_rating=spice_rating,
         tags=tags,
-        user_id=current_user_id
+        user_id=current_user_id,
+        slug=slugify(data["title"])
     )
     
     db.session.add(new_review)
@@ -113,11 +115,11 @@ def create_review():
     
     return jsonify({"new_review": new_review_result}), 201
 
-@reviews.route("/<int:review_id>", methods=["PUT", "PATCH"])
+@reviews.route("/<slug>", methods=["PUT", "PATCH"])
 @jwt_required()
-def update_review(review_id):
+def update_review(slug):
     current_user_id = int(get_jwt_identity())
-    book_review = BookReview.query.get_or_404(review_id)
+    book_review = BookReview.query.filter_by(slug=slug).first_or_404()
     
     if book_review.user_id != current_user_id:
         return jsonify({"error": "You do not have permission to modify this review."}), 403
@@ -129,6 +131,7 @@ def update_review(review_id):
         if existing and existing.id != book_review.id:
             return jsonify({"error": "There's already a review with this title."}), 400
         book_review.title = data["title"]
+        book_review.slug = slugify(data["title"])
         
     if request.method == "PUT":
         required_fields = ["title", "author", "cover_url", "review", "rating", "tag_ids"]
@@ -187,11 +190,11 @@ def update_review(review_id):
     
     return jsonify({"updated_review": updated_review}), 200
 
-@reviews.route("/<int:review_id>", methods=["DELETE"])
+@reviews.route("/<slug>", methods=["DELETE"])
 @jwt_required()
-def delete_review(review_id):
+def delete_review(slug):
     current_user_id = int(get_jwt_identity())
-    book_review = BookReview.query.get_or_404(review_id)
+    book_review = BookReview.query.filter_by(slug=slug).first_or_404()
     
     if book_review.user_id != current_user_id:
         return jsonify({"error": "You do not have permission to delete this review."}), 403
