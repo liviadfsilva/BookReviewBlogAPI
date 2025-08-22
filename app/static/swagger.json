@@ -3,7 +3,7 @@
   "info": {
     "title": "Book Review Blog API",
     "version": "1.0",
-    "description": "Documentation for the Book Review Blog API. Use these endpoints to interact with book reviews, manage blog posts, and access the latest published content."
+    "description": "Documentation for the Book Review Blog API. Use these endpoints to interact with book reviews, manage blog posts, access the latest published content, and more."
   },
   "paths": {
     "/api/login": {
