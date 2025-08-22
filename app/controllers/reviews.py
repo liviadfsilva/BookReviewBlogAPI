@@ -203,6 +203,3 @@ def delete_review(slug):
     db.session.commit()
     
     return jsonify({"msg": "Review deleted successfully."})
-        
-    
-    

@@ -1,0 +1,410 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Book Review Blog API",
+    "version": "1.0",
+    "description": "Documentation for my Book Review Blog API."
+  },
+  "paths": {
+    "/api/login": {
+      "post": {
+        "summary": "User login",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "format": "email", "example": "user@example.com" },
+                  "password": { "type": "string", "format": "password", "example": "mypassword123" }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": { "type": "string", "example": "jwt-token-string" },
+                    "exp": { "type": "number", "example": 43200 },
+                    "name": { "type": "string", "example": "John" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "error": { "type": "string", "example": "Invalid email or password." } }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "error": { "type": "string", "example": "Server error: ..." } }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/logout": {
+      "post": {
+        "summary": "User logout",
+        "tags": ["Auth"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Logout successful",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object", "properties": { "msg": { "type": "string", "example": "Logout successfully completed" } } }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized user",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object", "properties": { "msg": { "type": "string", "example": "Missing Authorization Header" } } }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "get": {
+        "summary": "Get all active users",
+        "tags": ["Users"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "List of active users", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/User" } } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "type": "object", "properties": { "msg": { "type": "string", "example": "Missing Authorization Header" } } } } } }
+        }
+      },
+      "post": {
+        "summary": "Create a new user",
+        "tags": ["Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "example": "John Doe" },
+                  "email": { "type": "string", "format": "email", "example": "john@example.com" },
+                  "password": { "type": "string", "format": "password", "example": "mypassword123" },
+                  "confirm_password": { "type": "string", "format": "password", "example": "mypassword123" }
+                },
+                "required": ["name", "email", "password", "confirm_password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "User successfully created", "content": { "application/json": { "schema": { "type": "object", "properties": { "new_user": { "$ref": "#/components/schemas/User" } } } } } },
+          "400": { "description": "Validation error", "content": { "application/json": { "schema": { "type": "object", "properties": { "error": { "type": "string", "example": "Passwords do not match" } } } } } }
+        }
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "summary": "Get current logged-in user info",
+        "tags": ["Users"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "User info", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/User" } } } },
+          "401": { "description": "Unauthorized", "content": { "application/json": { "schema": { "type": "object", "properties": { "msg": { "type": "string", "example": "Missing Authorization Header" } } } } } }
+        }
+      }
+    },
+    "/api/reviews": {
+      "get": {
+        "summary": "Get all reviews",
+        "tags": ["Reviews"],
+        "responses": {
+          "200": { "description": "List of all reviews", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Review" } } } } },
+          "404": { "description": "No reviews found", "content": { "application/json": { "schema": { "type": "object", "properties": { "msg": { "type": "string", "example": "No reviews found" } } } } } }
+        }
+      },
+      "post": {
+        "summary": "Create a new review",
+        "tags": ["Reviews"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" },
+                  "author": { "type": "string" },
+                  "cover_url": { "type": "string" },
+                  "review": { "type": "string" },
+                  "rating": { "type": "integer" },
+                  "spice_rating": { "type": "integer" },
+                  "tag_ids": { "type": "array", "items": { "type": "integer" } }
+                },
+                "required": ["title","author","cover_url","review","rating","tag_ids"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Review created successfully", "content": { "application/json": { "schema": { "type": "object", "properties": { "new_review": { "$ref": "#/components/schemas/Review" } } } } } },
+          "400": { "description": "Validation error", "content": { "application/json": { "schema": { "type": "object", "properties": { "error": { "type": "string", "example": "Validation error" } } } } } }
+        }
+      }
+    },
+    "/api/reviews/latest": {
+      "get": {
+        "summary": "Get three latest reviews",
+        "tags": ["Reviews"],
+        "responses": {
+          "200": { "description": "Three latest reviews", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Review" } } } } },
+          "404": { "description": "No reviews found", "content": { "application/json": { "schema": { "type": "object", "properties": { "msg": { "type": "string", "example": "No reviews found" } } } } } }
+        }
+      }
+    },
+    "/api/reviews/five-star-reviews": {
+      "get": {
+        "summary": "Get five-star reviews",
+        "tags": ["Reviews"],
+        "responses": {
+          "200": { "description": "Five star reviews", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Review" } } } } },
+          "404": { "description": "No reviews found", "content": { "application/json": { "schema": { "type": "object", "properties": { "msg": { "type": "string", "example": "No five-star reviews found" } } } } } }
+        }
+      }
+    },
+    "/api/reviews/category/{category_name}": {
+      "get": {
+        "summary": "Get reviews by category",
+        "tags": ["Reviews"],
+        "parameters": [{ "name": "category_name", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Reviews in the category", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Review" } } } } },
+          "404": { "description": "No reviews found in this category", "content": { "application/json": { "schema": { "type": "object", "properties": { "msg": { "type": "string", "example": "No reviews found for this category" } } } } } }
+        }
+      }
+    },
+    "/api/reviews/{slug}": {
+      "get": {
+        "summary": "Get specific review",
+        "tags": ["Reviews"],
+        "parameters": [{ "name": "slug", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Specific review", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Review" } } } },
+          "404": { "description": "No review found", "content": { "application/json": { "schema": { "type": "object", "properties": { "msg": { "type": "string", "example": "No review found" } } } } } }
+        }
+      },
+      "put": {
+        "summary": "Update a review fully",
+        "tags": ["Reviews"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "slug", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": { "$ref": "#/paths/~1api~1reviews~1{slug}/get/requestBody" },
+        "responses": { "$ref": "#/paths/~1api~1reviews~1{slug}/get/responses" }
+      },
+      "patch": {
+        "summary": "Partial update a review",
+        "tags": ["Reviews"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "slug", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": { "$ref": "#/paths/~1api~1reviews~1{slug}/get/requestBody" },
+        "responses": { "$ref": "#/paths/~1api~1reviews~1{slug}/get/responses" }
+      },
+      "delete": {
+        "summary": "Delete a review",
+        "tags": ["Reviews"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "slug", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Review deleted successfully", "content": { "application/json": { "schema": { "type": "object", "properties": { "msg": { "type": "string", "example": "Review deleted successfully." } } } } } },
+          "403": { "description": "Forbidden", "content": { "application/json": { "schema": { "type": "object", "properties": { "error": { "type": "string", "example": "You do not have permission to delete this review." } } } } } }
+        }
+      }
+    },
+    "/api/blog-posts": {
+      "get": {
+        "summary": "Get all blog posts",
+        "tags": ["Posts"],
+        "responses": {
+          "200": { "description": "List of blog posts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Post" } } } } },
+          "404": { "description": "No blog posts found", "content": { "application/json": { "schema": { "type": "object", "properties": { "error": { "type": "string", "example": "No blog posts found." } } } } } }
+        }
+      },
+      "post": {
+        "summary": "Create a new blog post",
+        "tags": ["Posts"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Post" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "New blog post created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Post" } } } },
+          "400": { "description": "Validation error", "content": { "application/json": { "schema": { "type": "object", "properties": { "error": { "type": "string", "example": "Title, subtitle and musing are required." } } } } } }
+        }
+      }
+    },
+    "/api/blog-posts/latest": {
+      "get": {
+        "summary": "Get latest 3 blog posts",
+        "tags": ["Posts"],
+        "responses": {
+          "200": { "description": "Latest blog posts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Post" } } } } }
+        }
+      }
+    },
+    "/api/blog-posts/{slug}": {
+      "get": {
+        "summary": "Get a blog post by slug",
+        "tags": ["Posts"],
+        "parameters": [
+          { "name": "slug", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Blog post details", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Post" } } } },
+          "404": { "description": "Blog post not found", "content": { "application/json": { "schema": { "type": "object", "properties": { "error": { "type": "string", "example": "No blog posts found." } } } } } }
+        }
+      },
+      "put": {
+        "summary": "Update a blog post by slug (full update)",
+        "tags": ["Posts"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "slug", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Post" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Updated blog post", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Post" } } } },
+          "400": { "description": "Validation error", "content": { "application/json": { "schema": { "type": "object", "properties": { "error": { "type": "string", "example": "Missing required fields for full update" } } } } } }
+        }
+      },
+      "patch": {
+        "summary": "Update a blog post by slug (partial update)",
+        "tags": ["Posts"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "slug", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Post" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Updated blog post", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Post" } } } },
+          "400": { "description": "Validation error", "content": { "application/json": { "schema": { "type": "object", "properties": { "error": { "type": "string", "example": "There's already a review with this title." } } } } } }
+        }
+      },
+      "delete": {
+        "summary": "Delete a blog post by slug",
+        "tags": ["Posts"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "slug", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Blog post deleted", "content": { "application/json": { "schema": { "type": "object", "properties": { "msg": { "type": "string", "example": "Blog post successfully deleted." } } } } } },
+          "400": { "description": "Permission denied", "content": { "application/json": { "schema": { "type": "object", "properties": { "error": { "type": "string", "example": "You do not have permission to delete this post." } } } } } }
+        }
+      }
+    },
+    "/api/tags": {
+      "get": {
+        "summary": "Get all tags",
+        "tags": ["Tags"],
+        "responses": {
+          "200": { "description": "List of blog posts", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Tags" } } } } },
+          "404": { "description": "No tags found", "content": { "application/json": { "schema": { "type": "object", "properties": { "error": { "type": "string", "example": "No tags found." } } } } } }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "name": { "type": "string", "example": "John Doe" },
+          "email": { "type": "string", "format": "email", "example": "john@example.com" },
+          "is_active": { "type": "boolean", "example": true }
+        }
+      },
+      "Review": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "title": { "type": "string", "example": "My Book Review" },
+          "author": { "type": "string", "example": "Some Author" },
+          "cover_url": { "type": "string", "example": "https://example.com/cover.jpg" },
+          "review": { "type": "string", "example": "This book was amazing!" },
+          "rating": { "type": "integer", "example": 5 },
+          "spice_rating": { "type": "integer", "example": 3 },
+          "slug": { "type": "string", "example": "my-book-review" },
+          "tag_names": { "type": "array", "items": { "type": "string" } },
+          "user_id": { "type": "integer", "example": 1 }
+        }
+      },
+      "Post": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "title": { "type": "string", "example": "My Blog Post" },
+          "subtitle": { "type": "string", "example": "My Blog Post Subtitle" },
+          "img_url": { "type": "string", "example": "https://example.com/img.jpg" },
+          "musing": { "type": "string", "example": "Check out this amazing recipe!" },
+          "slug": { "type": "string", "example": "my-blog-post" },
+          "user_id": { "type": "integer", "example": 1 }
+        }
+      },
+      "Tags" : {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "name": { "type": "string", "example": "Fantasy" }
+        }
+      }
+    }
+  }
+}

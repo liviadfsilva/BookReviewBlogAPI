@@ -9,6 +9,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 from app.models.db import db
 from app.initializer import jwt
+from flask_swagger_ui import get_swaggerui_blueprint
 
 migrate = Migrate()
 
@@ -27,5 +28,14 @@ def create_app():
     app.register_blueprint(user, url_prefix="/api/users")
     app.register_blueprint(posts, url_prefix="/api/blog-posts")
     app.register_blueprint(tags, url_prefix="/api/tags")
+    
+    SWAGGER_URL = "/docs"
+    API_URL = "/static/swagger.json"
+    swaggerui_blueprint = get_swaggerui_blueprint(
+        SWAGGER_URL,
+        API_URL,
+        config={"app_name": "My Book Review Blog API"}
+    )
+    app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
     
     return app
