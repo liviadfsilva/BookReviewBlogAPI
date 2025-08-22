@@ -34,7 +34,7 @@ def create_app():
     swaggerui_blueprint = get_swaggerui_blueprint(
         SWAGGER_URL,
         API_URL,
-        config={"app_name": "My Book Review Blog API"}
+        config={"app_name": "Book Review Blog API"}
     )
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
     
