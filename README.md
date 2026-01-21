@@ -98,6 +98,9 @@ Dockerfile
 main.py
 requirements.txt
 ```
+
+<br/>
+
 ## Inspiration 📚
 
 The idea behind this project was the desire of having a place of my own to make book reviews and blog posts without the need to have multiple social media accounts for that.
@@ -106,7 +109,7 @@ The idea behind this project was the desire of having a place of my own to make 
 
 ## Future Improvements 🧩
 
-- Add pagination
+- Add pagination to book reviews and blog posts
 
 <br/>
 
