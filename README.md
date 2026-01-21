@@ -100,14 +100,13 @@ requirements.txt
 ```
 ## Inspiration 📚
 
-This project was born from my love of stickers as a way to explore how a backend API for selling digital products could be designed and implemented.
+The idea behind this project was the desire of having a place of my own to make book reviews and blog posts without the need to have multiple social media accounts for that.
 
 <br/>
 
 ## Future Improvements 🧩
 
-- Integration with a payment provider
-- Secure download links for purchased stickers
+- Add pagination
 
 <br/>
 
