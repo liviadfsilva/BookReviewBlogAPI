@@ -1,22 +1,57 @@
 # 📚 Book Review Blog
 
-As an avid reader (and not a huge fan of having multiple social media accounts) this book review blog was developed with the goal to create a personal space where I can share my thoughts whenever I finish a book.
+![Python](https://img.shields.io/badge/Python-3.13.2-yellow?style=for-the-badge)
+![Flask](https://img.shields.io/badge/Flask-3.1.1-white?style=for-the-badge)
+![Docker](https://img.shields.io/badge/Docker-Enabled-blue?style=for-the-badge)
+![JWT](https://img.shields.io/badge/Jwt-Auth-green?style=for-the-badge)
+![PostgreSQL](https://img.shields.io/badge/Postgres-8.0-7AADFF?style=for-the-badge)
+![Licence](https://img.shields.io/badge/Licence-MIT-pink?style=for-the-badge)
 
 <br>
 
-<p align="center">
-  <img src="https://i.pinimg.com/originals/ff/cc/14/ffcc142948cb780c24c5e5086fd57016.gif" alt="open book flipping pages by itself">
-</p>
+## About ✨
 
-<br>
+Book Review Blog is a RESTful API for managing users, books, reviews and personal blog posts, designed to support a complete book review and blogging platform.
 
-## Technologies ⚙️
-- Docker
-- Flask
-- PostgreSQL
-- Python
+<br/>
 
-## Project Structure
+## Features ⚙️
+- JWT Authentication
+- Book Categorisation
+- Rating and review system
+- RESTful endpoints for CRUD operations
+
+## Installation 💻
+
+1. **Clone the repository:**
+
+   ```sh
+   git clone https://github.com/liviadfsilva/BookReviewBlogAPI.git
+   cd BookReviewBlogAPI
+   ```
+
+2. **Copy the .env.example file to .env and change the environment variables if necessary:**
+
+   ```sh
+   cp .env.example .env
+   ```
+
+3. **Build and start the application and database with Docker**
+
+   ```bash
+    docker compose up --build
+   ```
+<br/>
+
+#### The application will start at:
+꩜ **http://localhost:5001**
+
+#### Access the Swagger documentation:
+📜 **http://localhost:5001/docs/#/**
+
+<br/>
+
+## Project Structure 🧬
 
 ```
 app
@@ -63,3 +98,27 @@ Dockerfile
 main.py
 requirements.txt
 ```
+## Inspiration 📚
+
+This project was born from my love of stickers as a way to explore how a backend API for selling digital products could be designed and implemented.
+
+<br/>
+
+## Future Improvements 🧩
+
+- Integration with a payment provider
+- Secure download links for purchased stickers
+
+<br/>
+
+## Author 🩷
+**Lívia Silva**<br/>
+Backend Developer
+
+- GitHub: https://github.com/liviadfsilva 
+- LinkedIn: https://linkedin.com/in/liviadfsilva
+
+<br/>
+
+## Licence 📋
+This software is licenced under the MIT Licence.
