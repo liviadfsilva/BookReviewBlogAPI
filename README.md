@@ -21,6 +21,8 @@ Book Review Blog is a RESTful API for managing users, books, reviews and persona
 - Rating and review system
 - RESTful endpoints for CRUD operations
 
+<br/>
+
 ## Installation 💻
 
 1. **Clone the repository:**
